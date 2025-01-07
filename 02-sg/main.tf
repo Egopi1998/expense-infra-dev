@@ -59,16 +59,16 @@ module "bastion" {
   sg_name = "bastion"
 }
 
-# module "vpn" {
-#   source = "git::https://github.com/Egopi1998/terraform-aws-SG-module.git?ref=main"
-#   project_name = var.project_name
-#   environment = var.environment
-#   sg_description = "SG for VPN Instances"
-#   vpc_id = data.aws_ssm_parameter.vpc_id.value
-#   common_tags = var.common_tags
-#   sg_name = "vpn"
-#   ingress_rules = var.vpn_sg_rules
-# }
+module "vpn" {
+  source = "git::https://github.com/Egopi1998/terraform-aws-SG-module.git?ref=main"
+  project_name = var.project_name
+  environment = var.environment
+  sg_description = "SG for VPN Instances"
+  vpc_id = data.aws_ssm_parameter.vpc_id.value
+  common_tags = var.common_tags
+  sg_name = "vpn"
+  ingress_rules = var.vpn_sg_rules
+}
 
 # DB is accepting connections from backend
 resource "aws_security_group_rule" "db_backend" {
@@ -116,32 +116,32 @@ resource "aws_security_group_rule" "backend_bastion" {
   security_group_id = module.backend.sg_id
 }
 
-# resource "aws_security_group_rule" "backend_vpn_ssh" {
-#   type              = "ingress"
-#   from_port         = 22
-#   to_port           = 22
-#   protocol          = "tcp"
-#   source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
-#   security_group_id = module.backend.sg_id
-# }
+resource "aws_security_group_rule" "backend_vpn_ssh" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
+  security_group_id = module.backend.sg_id
+}
 
-# resource "aws_security_group_rule" "backend_vpn_http" {
-#   type              = "ingress"
-#   from_port         = 8080
-#   to_port           = 8080
-#   protocol          = "tcp"
-#   source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
-#   security_group_id = module.backend.sg_id
-# }
+resource "aws_security_group_rule" "backend_vpn_http" {
+  type              = "ingress"
+  from_port         = 8080
+  to_port           = 8080
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
+  security_group_id = module.backend.sg_id
+}
 
-# resource "aws_security_group_rule" "app_alb_vpn" {
-#   type              = "ingress"
-#   from_port         = 80
-#   to_port           = 80
-#   protocol          = "tcp"
-#   source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
-#   security_group_id = module.app_alb.sg_id
-# }
+resource "aws_security_group_rule" "app_alb_vpn" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
+  security_group_id = module.app_alb.sg_id
+}
 
 resource "aws_security_group_rule" "app_alb_bastion" {
   type              = "ingress"
@@ -179,14 +179,14 @@ resource "aws_security_group_rule" "frontend_bastion" {
   security_group_id = module.frontend.sg_id
 }
 
-# resource "aws_security_group_rule" "frontend_vpn" {
-#   type              = "ingress"
-#   from_port         = 22
-#   to_port           = 22
-#   protocol          = "tcp"
-#   source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
-#   security_group_id = module.frontend.sg_id
-# }
+resource "aws_security_group_rule" "frontend_vpn" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.sg_id # source is where you are getting traffic from
+  security_group_id = module.frontend.sg_id
+}
 
 resource "aws_security_group_rule" "web_alb_public" {
   type              = "ingress"
